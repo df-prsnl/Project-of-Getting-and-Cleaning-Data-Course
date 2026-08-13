@@ -1,17 +1,11 @@
 # opening and reading the files
 
-test_url <- "~/Downloads/UCI HAR Dataset/test/X_test.txt"
-train_url <-"~/Downloads/UCI HAR Dataset/train/X_train.txt"
-
-open_test <- file(test_url)
-open_train <- file(train_url)
-
-rtest <- read.table(open_test)
-rtrain <- read.table(open_train)
+rtest <- read.table("X_test.txt")
+rtrain <- read.table("X_train.txt")
 
 # renaming columns
-features_url <- "~/Downloads/UCI HAR Dataset/features.txt"
-features <- read.table(features_url, stringsAsFactors = FALSE)
+features_url <- "features.txt"
+features <- read.table("features.txt", stringsAsFactors = FALSE)
 nms <- features[, 2]
 
 colnames(rtest) <- nms
@@ -19,12 +13,10 @@ colnames(rtrain) <- nms
 
 # adding subject column
 
-x <- "~/Downloads/UCI HAR Dataset/test/subject_test.txt"
-x <- read.table(x)
+x <- read.table("subject_test.txt")
 rtest <- cbind(rtest,x)
 
-y <- "~/Downloads/UCI HAR Dataset/train/subject_train.txt"
-y <- read.table(y)
+y <- read.table("subject_train.txt")
 rtrain <- cbind(rtrain,y)
 
 # step1. merging the two data frames
@@ -47,11 +39,9 @@ standardev <- df[,grep("std\\(\\)",names(df),value = FALSE)]
 
 ## since i merged the rtrain to the rtrain, the order of the names must be: first the
 ## names of activities carryed in the train and after that in the test
-ac_ID_test <- "~/Downloads/UCI HAR Dataset/test/y_test.txt"
-ac_ID_test <- read.table(ac_ID_test)
+ac_ID_test <- read.table("y_test.txt")
 
-ac_ID_train <- "~/Downloads/UCI HAR Dataset/train/y_train.txt"
-ac_ID_train <- read.table(ac_ID_train)
+ac_ID_train <- read.table("y_train.txt")
 
 ## gathering together the names of test and train
 ac_ID <- rbind(ac_ID_test,ac_ID_train)
@@ -63,8 +53,7 @@ names(new_df)[names(new_df)=="V1"] <- "Activity.ID"
 
 ## taking the activity labels
 
-ac_labels <- "~/Downloads/UCI HAR Dataset/activity_labels.txt"
-ac_labels <- read.table(ac_labels)
+ac_labels <- read.table("activity_labels.txt")
 
 ## addressing the labels to IDs
 
@@ -88,10 +77,13 @@ new_df <- new_df[, c(
 # step5. creating the new data frame, tidy and with the average of each variable
 # grouped by Subject, Activity.ID and Activity.Name
 
-df_tidy <- new_df %>%
-        group_by(Subject, Activity.ID, Activity.Name) %>%
+library(dplyr)
+df_tidy <- new_df |>
+        group_by(Subject, Activity.ID, Activity.Name) |>
         summarise(
                 across(everything(),
                         mean
                 )
         )
+
+df_tidy
